@@ -141,15 +141,15 @@ class HomeScreen extends StatelessWidget {
                   color: const Color.fromARGB(255, 101, 71, 60),
                   iconSize: 30,
                 ),
-                const SizedBox(width: 20),
-                IconButton(
-                  onPressed: () {
-                    // Navigate to Manual page or perform Manual action
-                  },
-                  icon: const Icon(Icons.book),
-                  color: const Color.fromARGB(255, 101, 71, 60),
-                  iconSize: 30,
-                ),
+                // const SizedBox(width: 20),
+                // IconButton(
+                //   onPressed: () {
+                //     // Navigate to Manual page or perform Manual action
+                //   },
+                //   icon: const Icon(Icons.book),
+                //   color: const Color.fromARGB(255, 101, 71, 60),
+                //   iconSize: 30,
+                // ),
               ],
             ),
           ],

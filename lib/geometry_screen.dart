@@ -25,7 +25,7 @@ class _GeometryScreenState extends State<GeometryScreen> {
   final TextEditingController _heightController = TextEditingController();
 
   final String fixedDepth = "3";
-  final String fixedThickness = "1";
+  //final String fixedThickness = "1";
 
   bool isAllFieldsFilled = false;
 
@@ -75,11 +75,11 @@ class _GeometryScreenState extends State<GeometryScreen> {
                 label: 'Kedalaman Penetrasi (cm)',
                 value: fixedDepth,
               ),
-              const SizedBox(height: 20),
-              _buildFixedValueTextField(
-                label: 'Ketebalan Kulit Batang (cm)',
-                value: fixedThickness,
-              ),
+              // const SizedBox(height: 20),
+              // _buildFixedValueTextField(
+              //   label: 'Ketebalan Kulit Batang (cm)',
+              //   value: fixedThickness,
+              // ),
               const SizedBox(height: 20),
               _buildNumericTextField(
                 controller: _sensorCountController,
@@ -101,7 +101,7 @@ class _GeometryScreenState extends State<GeometryScreen> {
                         widget.onSave({
                           'circumference': _circumferenceController.text,
                           'depth': fixedDepth,
-                          'thickness': fixedThickness,
+                          //'thickness': fixedThickness,
                           'sensorCount': _sensorCountController.text,
                           'height': _heightController.text,
                         });

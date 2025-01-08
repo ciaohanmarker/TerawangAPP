@@ -235,20 +235,47 @@ class _LayerHomeState extends State<LayerHome> {
       return await showDialog(
             context: context,
             builder: (context) => AlertDialog(
-              title: const Text('Apakah anda yakin untuk keluar?'),
+              backgroundColor: const Color(0xFFF4F4F4),
+              title: Text(
+                'Apakah anda yakin untuk keluar?',
+                style: Theme.of(context).textTheme.displayLarge?.copyWith(
+                      color: const Color(0xFF006400),
+                      fontWeight: FontWeight.w500,
+                    ),
+              ),
               content:
                   const Text('Semua data yang belum tersimpan akan hilang.'),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(false),
-                  child: const Text("Tidak, saya belum selesai"),
+                  child: Text(
+                    "Tidak, saya belum selesai",
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          color: Colors.green,
+                          fontWeight: FontWeight.w400,
+                        ),
+                  ),
                 ),
                 ElevatedButton(
                   onPressed: () => Navigator.of(context).pushAndRemoveUntil(
                     MaterialPageRoute(builder: (context) => HomeScreen()),
                     (route) => false,
                   ),
-                  child: const Text("Ya, saya yakin"),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor:
+                        Colors.green, 
+                    shape: RoundedRectangleBorder(
+                      borderRadius:
+                          BorderRadius.circular(12), 
+                    ),
+                  ),
+                  child: Text(
+                    "Ya, saya yakin",
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w400,
+                        ),
+                  ),
                 ),
               ],
             ),

@@ -37,13 +37,14 @@ class _MeasurementScreenState extends State<MeasurementScreen> {
   Map<String, bool> isSensorSaved = {};
   Map<String, Color> sensorColors = {};
   double circumference = 0.0;
+  double depth = 0.0;
   List<double> chordDistances = [];
 
   // Bluetooth-related variables
   BluetoothState _bluetoothState = BluetoothState.UNKNOWN;
   BluetoothConnection? _connection;
   String _statusText = "Tidak Tersambung";
-  Color _statusColor = Color.fromARGB(255, 183, 30, 20);
+  Color _statusColor = const Color.fromARGB(255, 183, 30, 20);
   bool _isConnected = false;
   bool _dataSent = false;
   bool _hitungAverageClicked = false;
@@ -67,8 +68,9 @@ class _MeasurementScreenState extends State<MeasurementScreen> {
 
     sensorData = Map.from(widget.initialSensorData);
     // Set circumference from geometry data
-    circumference =
-        double.tryParse(widget.savedGeometryData['circumference'] ?? '0') ?? 0;
+    circumference = double.parse(widget.savedGeometryData['circumference']!);
+    depth = double.parse(widget.savedGeometryData['depth']!);
+
     _calculateChordDistances();
 
     for (int i = 1; i <= widget.sensorCount; i++) {
@@ -100,9 +102,9 @@ class _MeasurementScreenState extends State<MeasurementScreen> {
   }
 
   void _calculateChordDistances() {
-    int sensorCount =
-        int.tryParse(widget.savedGeometryData['sensorCount'] ?? '1') ?? 1;
-    double radius = (circumference / (2 * pi)).toDouble();
+    int sensorCount = int.parse(widget.savedGeometryData['sensorCount']!);
+    // in-out in cm
+    double radius = (circumference / (2 * pi) - depth).toDouble();
     double angleBetweenSensors = (2 * pi / sensorCount).toDouble();
 
     chordDistances.clear();
@@ -179,6 +181,8 @@ class _MeasurementScreenState extends State<MeasurementScreen> {
   }
 
   void _processReceivedData(String data) {
+    const double tofNail = 20.24; //v = 5930 m/s, l = 12 cm
+
     List<String> dataList = data.split(',');
 
     bool isValid = dataList.every((e) {
@@ -192,12 +196,16 @@ class _MeasurementScreenState extends State<MeasurementScreen> {
           dataList.map((e) => e == "#" ? 1.0 : double.parse(e)).toList();
 
       if (sumData.isEmpty) {
-        sumData = List<double>.filled(tofData.length, 0.0);
+        sumData = List<double>.filled(widget.sensorCount, 0.0);
       }
 
       List<double> speedData = [];
       for (int i = 0; i < tofData.length; i++) {
-        double speed = chordDistances[i] / tofData[i] * 10000;
+        double adjustedTof = tofData[i] - tofNail;
+        if (adjustedTof <= 0) {
+          adjustedTof = 1.0; // Avoid division by zero or negative values
+        }
+        double speed = chordDistances[i] / adjustedTof * 10000;
         speedData.add(speed);
         sumData[i] += speed;
       }
@@ -371,53 +379,56 @@ class _MeasurementScreenState extends State<MeasurementScreen> {
           padding: const EdgeInsets.all(16.0),
           child: Column(
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  ElevatedButton.icon(
-                    onPressed: _connectToBluetooth,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.brown,
-                      padding: const EdgeInsets.only(
-                        left: 8,
-                        right: 14,
-                        top: 12,
-                        bottom: 12,
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: [
+                    ElevatedButton.icon(
+                      onPressed: _connectToBluetooth,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.brown,
+                        padding: const EdgeInsets.only(
+                          left: 8,
+                          right: 14,
+                          top: 12,
+                          bottom: 12,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
                       ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                    icon: const Icon(
-                      Icons.bluetooth,
-                      color: Colors.white,
-                    ),
-                    label: Text(
-                      _isConnected ? 'Putus Koneksi' : 'Mulai Koneksi',
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                    ),
-                  ),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: _statusColor,
-                      borderRadius: BorderRadius.circular(30.0),
-                    ),
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 13.0,
-                      horizontal: 16.0,
-                    ),
-                    child: Text(
-                      _statusText,
-                      style: GoogleFonts.manrope(
-                        fontWeight: FontWeight.bold,
+                      icon: const Icon(
+                        Icons.bluetooth,
                         color: Colors.white,
                       ),
+                      label: Text(
+                        _isConnected ? 'Putus Koneksi' : 'Mulai Koneksi',
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                      ),
                     ),
-                  ),
-                ],
+                    const SizedBox(width: 20),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: _statusColor,
+                        borderRadius: BorderRadius.circular(30.0),
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 13.0,
+                        horizontal: 16.0,
+                      ),
+                      child: Text(
+                        _statusText,
+                        style: GoogleFonts.manrope(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
               const SizedBox(height: 30),
               DropdownButtonFormField<String>(
@@ -733,16 +744,17 @@ class PairedDeviceScreen extends StatelessWidget {
                   child: ListTile(
                     title: Text(
                       device.name ?? "Unknown Device",
-                      style: GoogleFonts.manrope(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.brown.shade900,
-                      ),
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.brown.shade900,
+                          ),
                     ),
                     subtitle: Text(
                       device.address,
-                      style: GoogleFonts.manrope(
-                        color: Colors.brown.shade700,
-                      ),
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.w400,
+                            color: Colors.brown.shade700,
+                          ),
                     ),
                     onTap: () {
                       onSelected(device);

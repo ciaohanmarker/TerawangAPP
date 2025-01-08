@@ -25,12 +25,14 @@ class ProjectScreen extends StatefulWidget {
 
 class _ProjectScreenState extends State<ProjectScreen> {
   final List<String> treeSpecies = [
-    "Akasia",
-    "Angsana",
-    "Beringin",
-    "Ciakrek",
-    "Flamboyan",
-    "Mahoni"
+    "Acret",
+    "Caringin",
+    "Cemara",
+    "Damar",
+    "Mahoni",
+    "Palm",
+    "Pinus",
+    "Salam",
   ];
 
   List<String> layers = [];
@@ -173,7 +175,10 @@ class _ProjectScreenState extends State<ProjectScreen> {
                 ),
                 ElevatedButton.icon(
                   onPressed: _navigateToCameraScreen,
-                  icon: const Icon(Icons.camera_alt),
+                  icon: const Icon(
+                    Icons.camera_alt,
+                    color: Colors.white,
+                  ),
                   label: Text(
                     'Ambil Foto',
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
@@ -197,7 +202,11 @@ class _ProjectScreenState extends State<ProjectScreen> {
                 TextField(
                   decoration: InputDecoration(
                     labelText: 'Spesies Pohon',
-                    hintText: 'Masukkan spesies pohon yang diukur!',
+                    labelStyle:
+                        Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              color: Colors.black,
+                            ),
+                    hintText: 'Masukkan spesies pohon!',
                     prefixIcon: Icon(
                       isSpeciesSelected ? Icons.nature : Icons.search,
                     ),
@@ -216,60 +225,70 @@ class _ProjectScreenState extends State<ProjectScreen> {
                   },
                 ),
                 const SizedBox(height: 20),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    ElevatedButton.icon(
-                      onPressed: _getCurrentLocation,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.brown,
-                        foregroundColor: Colors.white,
-                        textStyle: GoogleFonts.manrope(),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 12,
-                        ),
-                      ),
-                      icon: isLocationTaken
-                          ? const Icon(Icons.edit_location)
-                          : const Icon(Icons.add_location),
-                      label: Text(
-                        isLocationTaken ? 'Update Lokasi' : 'Ambil Lokasi',
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: Colors.white,
-                            ),
-                      ),
-                    ),
-                    //const SizedBox(width: 20),
-                    if (isLocationTaken)
-                      IconButton(
-                        onPressed: _openGoogleMaps,
-                        style: IconButton.styleFrom(
-                          backgroundColor: const Color(0xFFEFE8DC),
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: [
+                      ElevatedButton.icon(
+                        onPressed: _getCurrentLocation,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.brown,
+                          foregroundColor: Colors.white,
+                          textStyle: GoogleFonts.manrope(),
                           padding: const EdgeInsets.symmetric(
                             horizontal: 16,
                             vertical: 12,
                           ),
                         ),
-                        icon: SizedBox(
-                          //width: 24.0, // Default icon size width
-                          height: 24.0, // Default icon size height
-                          child: Image.asset(
-                            'assets/images/gmaps.png',
-                            fit: BoxFit.contain,
-                          ),
+                        icon: isLocationTaken
+                            ? const Icon(
+                                Icons.edit_location,
+                                color: Colors.white,
+                              )
+                            : const Icon(
+                                Icons.add_location,
+                                color: Colors.white,
+                              ),
+                        label: Text(
+                          isLocationTaken ? 'Update Lokasi' : 'Ambil Lokasi',
+                          style:
+                              Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    color: Colors.white,
+                                  ),
                         ),
-                        tooltip: 'Open Google Maps',
-                      )
-                    else
-                      Text(
-                        'Lokasi belum diambil.',
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
-                            ),
                       ),
-                  ],
+                      const SizedBox(width: 20),
+                      if (isLocationTaken)
+                        IconButton(
+                          onPressed: _openGoogleMaps,
+                          style: IconButton.styleFrom(
+                            backgroundColor: const Color(0xFFEFE8DC),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 12,
+                            ),
+                          ),
+                          icon: SizedBox(
+                            //width: 24.0, // Default icon size width
+                            height: 24.0, // Default icon size height
+                            child: Image.asset(
+                              'assets/images/gmaps.png',
+                              fit: BoxFit.contain,
+                            ),
+                          ),
+                          tooltip: 'Open Google Maps',
+                        )
+                      else
+                        Text(
+                          'No location.',
+                          style:
+                              Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                        ),
+                    ],
+                  ),
                 ),
                 const SizedBox(height: 10),
                 Padding(
@@ -468,7 +487,12 @@ class _ProjectScreenState extends State<ProjectScreen> {
                         .map((species) => ListTile(
                               title: Text(
                                 species,
-                                style: GoogleFonts.manrope(),
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium
+                                    ?.copyWith(
+                                      color: Colors.black,
+                                    ),
                               ),
                               onTap: () {
                                 setState(() {
@@ -509,10 +533,11 @@ class _CameraScreenState extends State<CameraScreen> {
   }
 
   Future<void> _initializeCamera() async {
-    final cameras = await availableCameras(); // Get list of available cameras
+    final cameras = await availableCameras();
     _cameraController = CameraController(
-      cameras.first, // Use the first available camera
+      cameras.first,
       ResolutionPreset.max,
+      enableAudio: false,
     );
     await _cameraController!.initialize();
     setState(() {
