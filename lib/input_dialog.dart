@@ -71,7 +71,7 @@ class _InputDialogState extends State<InputDialog> {
             child: Text(
               'Batalkan',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Colors.green, 
+                    color: Colors.green,
                     fontWeight: FontWeight.w400,
                   ),
             ),
@@ -84,12 +84,13 @@ class _InputDialogState extends State<InputDialog> {
                 : null,
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.green,
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
             ),
             child: Text(
               'Simpan',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Colors.white, 
-                    fontWeight: FontWeight.w400, 
+                    color: Colors.white,
+                    fontWeight: FontWeight.w400,
                   ),
             ),
           ),
