@@ -104,7 +104,8 @@ class _MeasurementScreenState extends State<MeasurementScreen> {
   void _calculateChordDistances() {
     int sensorCount = int.parse(widget.savedGeometryData['sensorCount']!);
     // in-out in cm
-    double radius = (circumference / (2 * pi) - depth).toDouble();
+    // double radius = (circumference / (2 * pi) - depth).toDouble();
+    double radius = (circumference / (2 * pi)).toDouble();
     double angleBetweenSensors = (2 * pi / sensorCount).toDouble();
 
     chordDistances.clear();
@@ -181,7 +182,7 @@ class _MeasurementScreenState extends State<MeasurementScreen> {
   }
 
   void _processReceivedData(String data) {
-    const double tofNail = 20.24; //v = 5930 m/s, l = 12 cm
+    // const double tofNail = 20.24; //v = 5930 m/s, l = 12 cm
 
     List<String> dataList = data.split(',');
 
@@ -201,11 +202,11 @@ class _MeasurementScreenState extends State<MeasurementScreen> {
 
       List<double> speedData = [];
       for (int i = 0; i < tofData.length; i++) {
-        double adjustedTof = tofData[i] - tofNail;
-        if (adjustedTof <= 0) {
-          adjustedTof = 1.0; // Avoid division by zero or negative values
-        }
-        double speed = chordDistances[i] / adjustedTof * 10000;
+        // double adjustedTof = tofData[i] - tofNail;
+        // if (adjustedTof <= 0) {
+        //   adjustedTof = 1.0; // Avoid division by zero or negative values
+        // }
+        double speed = chordDistances[i] / tofData[i] * 10000;
         speedData.add(speed);
         sumData[i] += speed;
       }
