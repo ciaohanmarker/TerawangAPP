@@ -5,6 +5,7 @@ class ProjectModel {
   final double? latitude;
   final double? longitude;
   final String? address;
+  final String? imagePath;
 
   ProjectModel({
     required this.projectName,
@@ -13,6 +14,7 @@ class ProjectModel {
     this.latitude,
     this.longitude,
     this.address,
+    this.imagePath,
   });
 }
 
