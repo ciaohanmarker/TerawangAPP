@@ -7,6 +7,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'input_dialog.dart';
 import 'layer_home_screen.dart';
 import 'home_screen.dart';
+import 'package:path/path.dart' as path;
 
 class ProjectScreen extends StatefulWidget {
   final String projectName;
@@ -177,11 +178,26 @@ class _ProjectScreenState extends State<ProjectScreen> {
       ),
     );
     if (result != null && result is File) {
-      setState(() {
+      setState(() async {
         _image = result;
+
+        // Tentukan direktori penyimpanan proyek
+        final directory = Directory('/storage/emulated/0/Documents/$widget.projectName');
+
+        // Pastikan direktori ada
+        if (!await directory.exists()) {
+          await directory.create(recursive: true);
+        }
+
+        // Tentukan path tujuan untuk menyimpan gambar dengan nama file yang diinginkan
+        final newPath = path.join(directory.path, '${widget.projectName}_image.jpeg');
+
+        // Pindahkan atau salin file gambar ke lokasi tujuan
+        File(result.path).copy(newPath);
       });
     }
   }
+
 
   Future<void> _openGoogleMaps() async {
     if (latitude != null && longitude != null) {
@@ -607,7 +623,7 @@ class _CameraScreenState extends State<CameraScreen> {
       enableAudio: false,
     );
     await _cameraController!.initialize();
-    setState(() {
+    setState(() async {
       _isCameraInitialized = true;
     });
   }
@@ -619,6 +635,7 @@ class _CameraScreenState extends State<CameraScreen> {
     }
 
     final image = await _cameraController!.takePicture(); // Capture image
+
     Navigator.pop(
         context, File(image.path)); // Return image file to the previous screen
   }
