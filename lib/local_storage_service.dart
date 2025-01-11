@@ -1,20 +1,38 @@
-import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
+import 'dart:io';
 import 'project_model.dart';
 
+
 class LocalStorageService {
-  Future<void> saveProject(ProjectModel project) async {
-    final prefs = await SharedPreferences.getInstance();
+  Future<void> saveProject(ProjectModel project,) async {
+    final directory = Directory('/storage/emulated/0/Documents/${project.projectName}');
+    
+    // Pastikan direktori ada
+    if (!await directory.exists()) {
+      await directory.create(recursive: true);
+    }
+    
+    // Konversi project ke JSON string
     final projectString = jsonEncode(projectToJson(project));
-    await prefs.setString(project.projectName, projectString);
+    
+    // Buat file di dalam direktori proyek
+    final file = File('${directory.path}/${project.projectName}.json');
+    
+    // Tulis JSON string ke file
+    await file.writeAsString(projectString);
   }
 
   Future<ProjectModel?> loadProject(String projectName) async {
-    final prefs = await SharedPreferences.getInstance();
-    final projectString = prefs.getString(projectName);
-    if (projectString != null) {
+    final directory = Directory('/storage/emulated/0/Documents/$projectName');
+    final file = File('${directory.path}/$projectName.json');
+    
+    // Cek apakah file ada
+    if (await file.exists()) {
+      // Baca konten file
+      final projectString = await file.readAsString();
       return projectFromJson(projectString);
     }
+    
     return null;
   }
 
@@ -23,6 +41,9 @@ class LocalStorageService {
       'projectName': project.projectName,
       'selectedSpecies': project.selectedSpecies,
       'layers': project.layers.map((layer) => layerToJson(layer)).toList(),
+      'latitude': project.latitude,
+      'longitude': project.longitude,
+      'imagePath': '/storage/emulated/0/Documents/${project.projectName}_image.jpg',
     };
   }
 
@@ -34,6 +55,9 @@ class LocalStorageService {
       layers: (jsonData['layers'] as List<dynamic>)
           .map((layerJson) => layerFromJson(layerJson))
           .toList(),
+      latitude: jsonData['latitude'],
+      longitude: jsonData['longitude'],
+      imagePath: jsonData['imagePath'],
     );
   }
 
@@ -67,5 +91,24 @@ class LocalStorageService {
       sensorNumber: jsonData['sensorNumber'],
       sensorValues: Map<String, String>.from(jsonData['sensorValues']),
     );
+  }
+}
+
+class ImageStorageService {
+  Future<String> saveImage(File imageFile, String projectName) async {
+    final directory = Directory('/storage/emulated/0/Documents/$projectName');
+    
+    // Pastikan direktori ada
+    if (!await directory.exists()) {
+      await directory.create(recursive: true);
+    }
+    
+    // Tentukan path untuk menyimpan gambar
+    final imagePath = '${directory.path}/${projectName}_image.jpg';
+    
+    // Simpan gambar sebagai JPEG
+    await imageFile.copy(imagePath);
+    
+    return imagePath;
   }
 }
