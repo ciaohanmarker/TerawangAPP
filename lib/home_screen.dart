@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'project_screen.dart';
 import 'input_dialog.dart';
-import 'saved_projects_screen.dart';
+
 import 'local_storage_service.dart';
 import 'project_model.dart';
 import 'settings_screen.dart';
@@ -100,18 +100,44 @@ class HomeScreen extends StatelessWidget {
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
-                // Navigate to SavedProjectsScreen
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const SavedProjectsScreen(),
+                // Menampilkan dialog input untuk memasukkan nama proyek
+                showDialog(
+                  context: context,
+                  builder: (context) => InputDialog(
+                    title: Text(
+                      "Masukkan nama proyek untuk memuat!",
+                      style: Theme.of(context).textTheme.displayLarge?.copyWith(
+                            color: const Color(0xFF006400),
+                            fontWeight: FontWeight.w500,
+                          ),
+                    ),
+                    onProjectNameSaved: (name) async {
+                      // Memuat proyek yang sudah ada berdasarkan nama yang dimasukkan
+                      final project = await _localStorageService.loadProject(name); //yg masih perlu koreksi
+
+                      // Jika proyek ditemukan, navigasikan ke layar proyek
+                      if (project != null) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ProjectScreen(projectName: name),
+                          ),
+                        );
+                      } else {
+                        // Tampilkan pesan jika proyek tidak ditemukan
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Proyek tidak ditemukan: $name'),
+                          ),
+                        );
+                      }
+                    },
                   ),
                 );
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color.fromARGB(255, 101, 71, 60),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20),
                 ),
@@ -124,6 +150,7 @@ class HomeScreen extends StatelessWidget {
                     ),
               ),
             ),
+
             const SizedBox(height: 40),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
